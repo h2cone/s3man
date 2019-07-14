@@ -41,8 +41,8 @@ var (
 
 // Config .
 type Config struct {
-	Aws AwsConfig
-	API APIConfig
+	Aws *AwsConfig
+	API *APIConfig
 }
 
 // AwsConfig .
@@ -57,15 +57,15 @@ type AwsConfig struct {
 
 // APIConfig .
 type APIConfig struct {
-	Server  ServerConfig
-	Bucket  BucketConfig
-	BaseURL BaseURLConfig
+	Server  *ServerConfig
+	Bucket  *BucketConfig
+	BaseURL *BaseURLConfig
 }
 
 // ServerConfig .
 type ServerConfig struct {
 	Addr      string
-	Multipart MultipartConfig
+	Multipart *MultipartConfig
 }
 
 // MultipartConfig .
@@ -94,18 +94,18 @@ func Load(filename string) *Config {
 		log.Fatal(err)
 	}
 	config := &Config{
-		Aws: AwsConfig{
+		Aws: &AwsConfig{
 			AccessKey:    awsAccessKey,
 			SecretKey:    awsSecretKey,
 			SessionToken: awsSessionToken,
 			Region:       awsRegion,
 			Endpoint:     awsEndpoint,
 		},
-		API: APIConfig{
-			Bucket: BucketConfig{
+		API: &APIConfig{
+			Bucket: &BucketConfig{
 				Default: apiBucketDefault,
 			},
-			BaseURL: BaseURLConfig{
+			BaseURL: &BaseURLConfig{
 				Img: apiBaseURLImg,
 				Ods: apiBaseURLOds,
 			},

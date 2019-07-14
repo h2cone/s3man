@@ -1,0 +1,15 @@
+{
+    "Aws": {
+        "S3ForcePathStyle": false
+    },
+    "API": {
+        "Server": {
+            "Addr": ":8000",
+            "Multipart": {
+                "FormKey": "file",
+                "MaxRequestSize": 10485760,
+                "MaxFileSize": 10485760
+            }
+        }
+    }
+}

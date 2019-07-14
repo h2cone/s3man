@@ -31,7 +31,6 @@ import (
 )
 
 const (
-	formKey         = "file"
 	contentType     = "Content-Type"
 	applicationJSON = "application/json"
 )
@@ -72,10 +71,9 @@ func (svc *S3Service) Upload(w http.ResponseWriter, r *http.Request) {
 		handleErr(err, w)
 		return
 	}
-	w.Header().Set(contentType, applicationJSON)
 
 	r.Body = http.MaxBytesReader(w, r.Body, conf.Server.Multipart.MaxFileSize)
-	file, header, err := r.FormFile(formKey)
+	file, header, err := r.FormFile(conf.Server.Multipart.FormKey)
 	if err != nil {
 		handleErr(err, w)
 		return
@@ -88,6 +86,7 @@ func (svc *S3Service) Upload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	baseURL := conf.BaseURL
+	w.Header().Set(contentType, applicationJSON)
 	w.Write(result.Ok(Media{
 		ETag:      out.ETag,
 		VersionID: out.VersionId,
@@ -119,6 +118,7 @@ func url(prefix, bucket, key string) string {
 }
 
 func handleErr(err error, w http.ResponseWriter) {
+	w.Header().Set(contentType, applicationJSON)
 	log.Print(err)
 	w.Write(result.Ko(err.Error()))
 }

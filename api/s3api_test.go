@@ -118,6 +118,6 @@ func TestUpload(t *testing.T) {
 	odsURL := media["odsUrl"].(string)
 	if len(eTag) == 0 || len(versionID) == 0 ||
 		len(imgURL) == 0 || len(odsURL) == 0 {
-		t.Fail()
+		t.Error()
 	}
 }

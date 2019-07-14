@@ -78,7 +78,7 @@ func (svc *S3Service) Upload(w http.ResponseWriter, r *http.Request) {
 		handleErr(err, w)
 		return
 	}
-	// TODO: timout setting
+	// TODO: timeout setting
 	defaultBucket := conf.Bucket.Default
 	key, out, err := svc.put(defaultBucket, keygen.UUIDWithExt, file, header)
 	if err != nil {

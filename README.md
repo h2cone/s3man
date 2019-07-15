@@ -1,3 +1,3 @@
-# s3uploader
+# s3man
 
-File upload service
+Provide file upload service

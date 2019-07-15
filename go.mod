@@ -1,4 +1,4 @@
-module s3uploader
+module s3man
 
 go 1.12
 

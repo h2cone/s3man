@@ -25,9 +25,9 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 
-	"s3uploader/config"
-	"s3uploader/keygen"
-	"s3uploader/result"
+	"s3man/config"
+	"s3man/keygen"
+	"s3man/result"
 )
 
 const (

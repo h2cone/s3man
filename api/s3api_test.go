@@ -25,8 +25,8 @@ import (
 	"runtime"
 	"testing"
 
-	"s3uploader/config"
-	"s3uploader/result"
+	"s3man/config"
+	"s3man/result"
 )
 
 var cfg = config.Load("../config.default.json")

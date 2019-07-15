@@ -15,7 +15,7 @@
 package main
 
 import (
-	"s3uploader/server"
+	"s3man/server"
 )
 
 func main() {

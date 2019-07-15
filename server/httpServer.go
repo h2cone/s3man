@@ -17,8 +17,8 @@ package server
 import (
 	"log"
 	"net/http"
-	"s3uploader/api"
-	"s3uploader/config"
+	"s3man/api"
+	"s3man/config"
 )
 
 var cfg = config.Load("./config.default.json")

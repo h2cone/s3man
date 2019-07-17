@@ -86,7 +86,7 @@ func (svc *S3Service) Upload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defaultBucket := conf.Bucket.Default
-	key, out, err := svc.put(defaultBucket, keygen.UUIDWithExt, file, header)
+	key, out, err := svc.put(&defaultBucket, keygen.UUIDWithExt, file, header)
 	if err != nil {
 		log.Printf("Failed to upload file, %v", err)
 		w.Write(result.Ko(err.Error()))
@@ -101,19 +101,20 @@ func (svc *S3Service) Upload(w http.ResponseWriter, r *http.Request) {
 	}))
 }
 
-func (svc *S3Service) put(bucket string, keyGen func(string) string,
+func (svc *S3Service) put(bucket *string, keyGen func(string) string,
 	file multipart.File, header *multipart.FileHeader) (string, *s3.PutObjectOutput, error) {
-	contentDisposition := fmt.Sprintf("attachment; filename=\"%s\"", header.Filename)
+	filename := header.Filename
+	key := keyGen(filename)
+	contentDisposition := fmt.Sprintf("attachment; filename=\"%s\"", filename)
 
 	ctx := context.Background()
 	timeout := time.Duration(svc.Config.API.Timeout) * time.Millisecond
 	ctx, cancelFn := context.WithTimeout(ctx, timeout)
 	defer cancelFn()
 
-	key := keyGen(header.Filename)
 	defer file.Close()
 	out, err := svc.S3.PutObjectWithContext(ctx, &s3.PutObjectInput{
-		Bucket:             aws.String(bucket),
+		Bucket:             bucket,
 		Key:                aws.String(key),
 		Body:               file,
 		ContentDisposition: aws.String(contentDisposition),

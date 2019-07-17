@@ -17,6 +17,7 @@ package api
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"log"
 	"mime/multipart"
 	"net/http"
@@ -102,18 +103,20 @@ func (svc *S3Service) Upload(w http.ResponseWriter, r *http.Request) {
 
 func (svc *S3Service) put(bucket string, keyGen func(string) string,
 	file multipart.File, header *multipart.FileHeader) (string, *s3.PutObjectOutput, error) {
-	key := keyGen(header.Filename)
+	contentDisposition := fmt.Sprintf("attachment; filename=\"%s\"", header.Filename)
 
 	ctx := context.Background()
 	timeout := time.Duration(svc.Config.API.Timeout) * time.Millisecond
 	ctx, cancelFn := context.WithTimeout(ctx, timeout)
 	defer cancelFn()
 
+	key := keyGen(header.Filename)
 	defer file.Close()
 	out, err := svc.S3.PutObjectWithContext(ctx, &s3.PutObjectInput{
-		Bucket: aws.String(bucket),
-		Key:    aws.String(key),
-		Body:   file,
+		Bucket:             aws.String(bucket),
+		Key:                aws.String(key),
+		Body:               file,
+		ContentDisposition: aws.String(contentDisposition),
 	})
 	return key, out, err
 }

@@ -16,9 +16,11 @@ package api
 
 import (
 	"bytes"
+	"context"
 	"log"
 	"mime/multipart"
 	"net/http"
+	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
@@ -66,32 +68,35 @@ func S3(cfg *config.Config) *S3Service {
 
 // Upload upload file
 func (svc *S3Service) Upload(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set(contentType, applicationJSON)
+
 	conf := svc.Config.API
 	if err := r.ParseMultipartForm(conf.Server.Multipart.MaxRequestSize); err != nil {
-		handleErr(err, w)
+		log.Printf("Failed to parse multipart form, %v", err)
+		w.Write(result.Ko(err.Error()))
 		return
 	}
 
 	r.Body = http.MaxBytesReader(w, r.Body, conf.Server.Multipart.MaxFileSize)
 	file, header, err := r.FormFile(conf.Server.Multipart.FormKey)
 	if err != nil {
-		handleErr(err, w)
+		log.Printf("Failed to limit the size of incoming request body, %v", err)
+		w.Write(result.Ko(err.Error()))
 		return
 	}
-	// TODO: timeout setting
 	defaultBucket := conf.Bucket.Default
 	key, out, err := svc.put(defaultBucket, keygen.UUIDWithExt, file, header)
 	if err != nil {
-		handleErr(err, w)
+		log.Printf("Failed to upload file, %v", err)
+		w.Write(result.Ko(err.Error()))
 		return
 	}
-	baseURL := conf.BaseURL
-	w.Header().Set(contentType, applicationJSON)
+	returnURL := conf.ReturnURL
 	w.Write(result.Ok(Media{
 		ETag:      out.ETag,
 		VersionID: out.VersionId,
-		ImgURL:    url(baseURL.Img, defaultBucket, key),
-		OdsURL:    url(baseURL.Ods, defaultBucket, key),
+		ImgURL:    url(returnURL.Img, defaultBucket, key),
+		OdsURL:    url(returnURL.Ods, defaultBucket, key),
 	}))
 }
 
@@ -99,8 +104,13 @@ func (svc *S3Service) put(bucket string, keyGen func(string) string,
 	file multipart.File, header *multipart.FileHeader) (string, *s3.PutObjectOutput, error) {
 	key := keyGen(header.Filename)
 
+	ctx := context.Background()
+	timeout := time.Duration(svc.Config.API.Timeout) * time.Millisecond
+	ctx, cancelFn := context.WithTimeout(ctx, timeout)
+	defer cancelFn()
+
 	defer file.Close()
-	out, err := svc.S3.PutObject(&s3.PutObjectInput{
+	out, err := svc.S3.PutObjectWithContext(ctx, &s3.PutObjectInput{
 		Bucket: aws.String(bucket),
 		Key:    aws.String(key),
 		Body:   file,
@@ -115,10 +125,4 @@ func url(prefix, bucket, key string) string {
 	buf.WriteString("/")
 	buf.WriteString(key)
 	return buf.String()
-}
-
-func handleErr(err error, w http.ResponseWriter) {
-	w.Header().Set(contentType, applicationJSON)
-	log.Print(err)
-	w.Write(result.Ko(err.Error()))
 }

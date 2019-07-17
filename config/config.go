@@ -35,8 +35,9 @@ var (
 	apiServerMultipartMaxFileSize    = os.Getenv("API_SERVER_MULTIPART_MAX_FILE_SIZE")
 	apiServerMultipartFormKey        = os.Getenv("API_SERVER_MULTIPART_FORM_KEY")
 	apiBucketDefault                 = os.Getenv("API_BUCKET_DEFAULT")
-	apiBaseURLImg                    = os.Getenv("API_BASE_URL_IMG")
-	apiBaseURLOds                    = os.Getenv("API_BASE_URL_ODS")
+	apiReturnURLImg                    = os.Getenv("API_RETURN_URL_IMG")
+	apiReturnURLOds                    = os.Getenv("API_RETURN_URL_ODS")
+	apiTimeout                       = os.Getenv("API_TIMEOUT")
 )
 
 // Config .
@@ -59,7 +60,8 @@ type AwsConfig struct {
 type APIConfig struct {
 	Server  *ServerConfig
 	Bucket  *BucketConfig
-	BaseURL *BaseURLConfig
+	ReturnURL *ReturnURL
+	Timeout int
 }
 
 // ServerConfig .
@@ -80,8 +82,8 @@ type BucketConfig struct {
 	Default string
 }
 
-// BaseURLConfig .
-type BaseURLConfig struct {
+// ReturnURL .
+type ReturnURL struct {
 	Img string
 	Ods string
 }
@@ -105,9 +107,9 @@ func Load(filename string) *Config {
 			Bucket: &BucketConfig{
 				Default: apiBucketDefault,
 			},
-			BaseURL: &BaseURLConfig{
-				Img: apiBaseURLImg,
-				Ods: apiBaseURLOds,
+			ReturnURL: &ReturnURL{
+				Img: apiReturnURLImg,
+				Ods: apiReturnURLOds,
 			},
 		},
 	}
@@ -133,17 +135,30 @@ func override(config *Config) {
 		config.API.Server.Multipart.FormKey = apiServerMultipartFormKey
 	}
 	if len(apiServerMultipartMaxRequestSize) > 0 {
-		maxReqSize, err := strconv.ParseInt(apiServerMultipartMaxRequestSize, 10, 0)
+		maxReqSize, err := strconv.ParseInt(apiServerMultipartMaxRequestSize, 10, 64)
 		if err != nil {
 			log.Print(err)
 		}
-		config.API.Server.Multipart.MaxRequestSize = maxReqSize
+		if maxReqSize > 0 {
+			config.API.Server.Multipart.MaxRequestSize = maxReqSize
+		}
 	}
 	if len(apiServerMultipartMaxFileSize) > 0 {
-		maxFileSize, err := strconv.ParseInt(apiServerMultipartMaxFileSize, 10, 0)
+		maxFileSize, err := strconv.ParseInt(apiServerMultipartMaxFileSize, 10, 64)
 		if err != nil {
 			log.Print(err)
 		}
-		config.API.Server.Multipart.MaxFileSize = maxFileSize
+		if maxFileSize > 0 {
+			config.API.Server.Multipart.MaxFileSize = maxFileSize
+		}
+	}
+	if len(apiTimeout) > 0 {
+		timeout, err := strconv.Atoi(apiTimeout)
+		if err != nil {
+			log.Print(err)
+		}
+		if timeout > 0 {
+			config.API.Timeout = timeout
+		}
 	}
 }

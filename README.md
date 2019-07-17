@@ -7,7 +7,7 @@ Provide file upload service
 Use environment variables
 
 Name | Required | Default
-- | - | -
+--- | --- | ---
 AWS_ACCESS_KEY_ID | true
 AWS_SECRET_ACCESS_KEY | true
 AWS_SESSION_TOKEN | false |

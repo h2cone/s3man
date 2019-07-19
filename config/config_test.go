@@ -20,6 +20,6 @@ import (
 
 func TestLoadConfig(t *testing.T) {
 	filename := "../config.default.json"
-	config := Load(filename)
+	config := Load(&filename)
 	t.Logf("config: %+v", config)
 }

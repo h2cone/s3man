@@ -35,8 +35,8 @@ var (
 	apiServerMultipartMaxFileSize    = os.Getenv("API_SERVER_MULTIPART_MAX_FILE_SIZE")
 	apiServerMultipartFormKey        = os.Getenv("API_SERVER_MULTIPART_FORM_KEY")
 	apiBucketDefault                 = os.Getenv("API_BUCKET_DEFAULT")
-	apiReturnURLImg                    = os.Getenv("API_RETURN_URL_IMG")
-	apiReturnURLOds                    = os.Getenv("API_RETURN_URL_ODS")
+	apiReturnURLImg                  = os.Getenv("API_RETURN_URL_IMG")
+	apiReturnURLOds                  = os.Getenv("API_RETURN_URL_ODS")
 	apiTimeout                       = os.Getenv("API_TIMEOUT")
 )
 
@@ -58,10 +58,10 @@ type AwsConfig struct {
 
 // APIConfig .
 type APIConfig struct {
-	Server  *ServerConfig
-	Bucket  *BucketConfig
+	Server    *ServerConfig
+	Bucket    *BucketConfig
 	ReturnURL *ReturnURL
-	Timeout int
+	Timeout   int
 }
 
 // ServerConfig .
@@ -89,9 +89,9 @@ type ReturnURL struct {
 }
 
 // Load load config file by filename
-func Load(filename string) *Config {
-	log.Printf("Loading config file: %s", filename)
-	bytes, err := ioutil.ReadFile(filename)
+func Load(filename *string) *Config {
+	log.Printf("Loading config file: %s", *filename)
+	bytes, err := ioutil.ReadFile(*filename)
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -21,11 +21,11 @@ import (
 	"s3man/config"
 )
 
-var cfg = config.Load("./config.default.json")
-
 // Start start HTTP server
-func Start() {
+func Start(c *string) {
+	cfg := config.Load(c)
 	svc := api.S3(cfg)
+
 	http.HandleFunc("/upload", svc.Upload)
 
 	addr := cfg.API.Server.Addr

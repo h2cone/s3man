@@ -15,9 +15,13 @@
 package main
 
 import (
+	"flag"
 	"s3man/server"
 )
 
+var c = flag.String("c", "config.default.json", "path to the configuration file")
+
 func main() {
-	server.Start()
+	flag.Parse()
+	server.Start(c)
 }

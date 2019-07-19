@@ -12,38 +12,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package api
+package test
 
 import (
 	"bytes"
 	"encoding/json"
 	"io/ioutil"
-	"log"
 	"mime/multipart"
 	"net/http"
 	"os"
 	"runtime"
-	"testing"
-
-	"s3man/config"
 	"s3man/result"
+	"s3man/server"
+	"testing"
 )
-
-var cfg = config.Load("../config.default.json")
-
-func start() {
-	svc := S3(cfg)
-	http.HandleFunc("/upload", svc.Upload)
-
-	addr := cfg.API.Server.Addr
-	log.Print("HTTP server running on " + addr)
-	log.Fatal(http.ListenAndServe(addr, nil))
-}
 
 const platform = runtime.GOOS
 
 func TestUpload(t *testing.T) {
-	go start()
+	c := "../config.default.json"
+	go server.Start(&c)
 	// test file
 	dir, err := os.Getwd()
 	if err != nil {

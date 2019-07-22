@@ -48,8 +48,10 @@ type S3Service struct {
 type Media struct {
 	ETag      *string `json:"eTag"`
 	VersionID *string `json:"versionId"`
+	ImgPath   string  `json:"imgPath"`
 	ImgURL    string  `json:"imgUrl"`
-	OdsURL    string  `json:"odsUrl"`
+	FilePath  string  `json:"filePath"`
+	FileURL   string  `json:"fileUrl"`
 }
 
 // S3 create s3 service
@@ -96,8 +98,10 @@ func (svc *S3Service) Upload(w http.ResponseWriter, r *http.Request) {
 	w.Write(result.Ok(Media{
 		ETag:      out.ETag,
 		VersionID: out.VersionId,
+		ImgPath:   path(defaultBucket, key),
 		ImgURL:    url(returnURL.Img, defaultBucket, key),
-		OdsURL:    url(returnURL.Ods, defaultBucket, key),
+		FilePath:  path(defaultBucket, key),
+		FileURL:   url(returnURL.File, defaultBucket, key),
 	}))
 }
 
@@ -125,6 +129,14 @@ func (svc *S3Service) put(bucket *string, keyGen func(string) string,
 func url(prefix, bucket, key string) string {
 	buf := new(bytes.Buffer)
 	buf.WriteString(prefix)
+	buf.WriteString(bucket)
+	buf.WriteString("/")
+	buf.WriteString(key)
+	return buf.String()
+}
+
+func path(bucket, key string) string {
+	buf := new(bytes.Buffer)
 	buf.WriteString(bucket)
 	buf.WriteString("/")
 	buf.WriteString(key)

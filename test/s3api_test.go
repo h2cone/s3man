@@ -103,9 +103,9 @@ func TestUpload(t *testing.T) {
 	eTag := media["eTag"].(string)
 	versionID := media["versionId"].(string)
 	imgURL := media["imgUrl"].(string)
-	odsURL := media["odsUrl"].(string)
+	fileURL := media["fileUrl"].(string)
 	if len(eTag) == 0 || len(versionID) == 0 ||
-		len(imgURL) == 0 || len(odsURL) == 0 {
+		len(imgURL) == 0 || len(fileURL) == 0 {
 		t.Error()
 	}
 }

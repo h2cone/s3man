@@ -36,7 +36,7 @@ var (
 	apiServerMultipartFormKey        = os.Getenv("API_SERVER_MULTIPART_FORM_KEY")
 	apiBucketDefault                 = os.Getenv("API_BUCKET_DEFAULT")
 	apiReturnURLImg                  = os.Getenv("API_RETURN_URL_IMG")
-	apiReturnURLOds                  = os.Getenv("API_RETURN_URL_ODS")
+	apiReturnURLFile                 = os.Getenv("API_RETURN_URL_FILE")
 	apiTimeout                       = os.Getenv("API_TIMEOUT")
 )
 
@@ -85,7 +85,7 @@ type BucketConfig struct {
 // ReturnURL .
 type ReturnURL struct {
 	Img string
-	Ods string
+	File string
 }
 
 // Load load config file by filename
@@ -109,7 +109,7 @@ func Load(filename *string) *Config {
 			},
 			ReturnURL: &ReturnURL{
 				Img: apiReturnURLImg,
-				Ods: apiReturnURLOds,
+				File: apiReturnURLFile,
 			},
 		},
 	}

@@ -30,7 +30,7 @@ type RespBody struct {
 func Ok(data interface{}) []byte {
 	body := &RespBody{
 		Code:    1,
-		Message: "Ok",
+		Message: "ok",
 		Data:    data,
 	}
 	return encode(body)

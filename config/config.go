@@ -35,8 +35,9 @@ var (
 	apiServerMultipartMaxFileSize    = os.Getenv("API_SERVER_MULTIPART_MAX_FILE_SIZE")
 	apiServerMultipartFormKey        = os.Getenv("API_SERVER_MULTIPART_FORM_KEY")
 	apiBucketDefault                 = os.Getenv("API_BUCKET_DEFAULT")
-	apiReturnURLImg                  = os.Getenv("API_RETURN_URL_IMG")
-	apiReturnURLFile                 = os.Getenv("API_RETURN_URL_FILE")
+	apiBucketGuessed                 = os.Getenv("API_BUCKET_GUESSED")
+	apiBucketImg                     = os.Getenv("API_BUCKET_IMG")
+	apiBucketFile                    = os.Getenv("API_BUCKET_FILE")
 	apiTimeout                       = os.Getenv("API_TIMEOUT")
 )
 
@@ -58,10 +59,9 @@ type AwsConfig struct {
 
 // APIConfig .
 type APIConfig struct {
-	Server    *ServerConfig
-	Bucket    *BucketConfig
-	ReturnURL *ReturnURL
-	Timeout   int
+	Server  *ServerConfig
+	Bucket  *BucketConfig
+	Timeout int
 }
 
 // ServerConfig .
@@ -80,12 +80,9 @@ type MultipartConfig struct {
 // BucketConfig .
 type BucketConfig struct {
 	Default string
-}
-
-// ReturnURL .
-type ReturnURL struct {
-	Img string
-	File string
+	Guessed bool
+	Img     string
+	File    string
 }
 
 // Load load config file by filename
@@ -106,10 +103,8 @@ func Load(filename *string) *Config {
 		API: &APIConfig{
 			Bucket: &BucketConfig{
 				Default: apiBucketDefault,
-			},
-			ReturnURL: &ReturnURL{
-				Img: apiReturnURLImg,
-				File: apiReturnURLFile,
+				Img:     apiBucketImg,
+				File:    apiBucketFile,
 			},
 		},
 	}
@@ -151,6 +146,13 @@ func override(config *Config) {
 		if maxFileSize > 0 {
 			config.API.Server.Multipart.MaxFileSize = maxFileSize
 		}
+	}
+	if len(apiBucketGuessed) > 0 {
+		guessed, err := strconv.ParseBool(apiBucketGuessed)
+		if err != nil {
+			log.Print(err)
+		}
+		config.API.Bucket.Guessed = guessed
 	}
 	if len(apiTimeout) > 0 {
 		timeout, err := strconv.Atoi(apiTimeout)

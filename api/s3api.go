@@ -142,8 +142,10 @@ func (svc *S3Service) guessBucket(file multipart.File) string {
 	contentType := http.DetectContentType(data)
 	imageTypes := []string{
 		"image/png",
-		"image/jpg",
 		"image/jpeg",
+		"image/gif",
+		"image/svg+xml",
+		"image/bmp",
 	}
 	for _, t := range imageTypes {
 		if contentType == t {

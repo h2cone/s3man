@@ -11,6 +11,9 @@
                 "MaxFileSize": 10485760
             }
         },
+        "Bucket": {
+            "Guessed": false
+        },
         "Timeout": 10000
     }
 }

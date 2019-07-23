@@ -48,10 +48,9 @@ type S3Service struct {
 type Media struct {
 	ETag      *string `json:"eTag"`
 	VersionID *string `json:"versionId"`
-	ImgPath   string  `json:"imgPath"`
-	ImgURL    string  `json:"imgUrl"`
-	FilePath  string  `json:"filePath"`
-	FileURL   string  `json:"fileUrl"`
+	Bucket    string  `json:"bucket"`
+	Key       string  `json:"key"`
+	Path      string  `json:"path"`
 }
 
 // S3 create s3 service
@@ -79,7 +78,6 @@ func (svc *S3Service) Upload(w http.ResponseWriter, r *http.Request) {
 		w.Write(result.Ko(err.Error()))
 		return
 	}
-
 	r.Body = http.MaxBytesReader(w, r.Body, conf.Server.Multipart.MaxFileSize)
 	file, header, err := r.FormFile(conf.Server.Multipart.FormKey)
 	if err != nil {
@@ -87,21 +85,26 @@ func (svc *S3Service) Upload(w http.ResponseWriter, r *http.Request) {
 		w.Write(result.Ko(err.Error()))
 		return
 	}
-	defaultBucket := conf.Bucket.Default
-	key, out, err := svc.put(&defaultBucket, keygen.UUIDWithExt, file, header)
+
+	var bucket string
+	if conf.Bucket.Guessed {
+		bucket = svc.guessBucket(file)
+	} else {
+		bucket = conf.Bucket.Default
+	}
+
+	key, out, err := svc.put(&bucket, keygen.UUIDWithExt, file, header)
 	if err != nil {
 		log.Printf("Failed to upload file, %v", err)
 		w.Write(result.Ko(err.Error()))
 		return
 	}
-	returnURL := conf.ReturnURL
 	w.Write(result.Ok(Media{
 		ETag:      out.ETag,
 		VersionID: out.VersionId,
-		ImgPath:   path(defaultBucket, key),
-		ImgURL:    url(returnURL.Img, defaultBucket, key),
-		FilePath:  path(defaultBucket, key),
-		FileURL:   url(returnURL.File, defaultBucket, key),
+		Bucket:    bucket,
+		Key:       key,
+		Path:      path(bucket, key),
 	}))
 }
 
@@ -126,13 +129,28 @@ func (svc *S3Service) put(bucket *string, keyGen func(string) string,
 	return key, out, err
 }
 
-func url(prefix, bucket, key string) string {
-	buf := new(bytes.Buffer)
-	buf.WriteString(prefix)
-	buf.WriteString(bucket)
-	buf.WriteString("/")
-	buf.WriteString(key)
-	return buf.String()
+func (svc *S3Service) guessBucket(file multipart.File) string {
+	bucketConf := svc.Config.API.Bucket
+
+	data := make([]byte, 512)
+	if _, err := file.Read(data); err != nil {
+		log.Print(err)
+	}
+	if _, err := file.Seek(0, 0); err != nil {
+		log.Print(err)
+	}
+	contentType := http.DetectContentType(data)
+	imageTypes := []string{
+		"image/png",
+		"image/jpg",
+		"image/jpeg",
+	}
+	for _, t := range imageTypes {
+		if contentType == t {
+			return bucketConf.Img
+		}
+	}
+	return bucketConf.File
 }
 
 func path(bucket, key string) string {

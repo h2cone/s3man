@@ -135,9 +135,11 @@ func (svc *S3Service) guessBucket(file multipart.File) string {
 	data := make([]byte, 512)
 	if _, err := file.Read(data); err != nil {
 		log.Print(err)
+		return bucketConf.Default
 	}
 	if _, err := file.Seek(0, 0); err != nil {
 		log.Print(err)
+		return bucketConf.Default
 	}
 	contentType := http.DetectContentType(data)
 	imageTypes := []string{

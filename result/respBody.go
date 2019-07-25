@@ -45,6 +45,16 @@ func Ko(message string) []byte {
 	return encode(body)
 }
 
+// New .
+func New(code int, message string, data interface{}) []byte {
+	body := &RespBody{
+		Code:    code,
+		Message: message,
+		Data:    data,
+	}
+	return encode(body)
+}
+
 func encode(body *RespBody) []byte {
 	bytes, err := json.Marshal(body)
 	if err != nil {

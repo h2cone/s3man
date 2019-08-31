@@ -25,8 +25,8 @@ type ErrMsg struct {
 	Message   string `json:"message"`
 }
 
-// NewErrMsg .
-func NewErrMsg(message string) []byte {
+// EncodeErrMsg .
+func EncodeErrMsg(message string) []byte {
 	errMsg := &ErrMsg{
 		Timestamp: time.Now().Unix(),
 		Message:   message,

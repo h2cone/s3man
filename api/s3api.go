@@ -17,6 +17,7 @@ package api
 import (
 	"bytes"
 	"context"
+
 	"fmt"
 	"log"
 	"mime/multipart"
@@ -28,6 +29,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 
+	"s3man/codec"
 	"s3man/config"
 	"s3man/keygen"
 	"s3man/result"
@@ -75,14 +77,14 @@ func (svc *S3Service) Upload(w http.ResponseWriter, r *http.Request) {
 	conf := svc.Config.API
 	if err := r.ParseMultipartForm(conf.Server.Multipart.MaxRequestSize); err != nil {
 		log.Printf("Failed to parse multipart form, %v", err)
-		w.Write(result.Ko(err.Error()))
+		w.Write(result.EncodeErrMsg(err.Error()))
 		return
 	}
 	r.Body = http.MaxBytesReader(w, r.Body, conf.Server.Multipart.MaxFileSize)
 	file, header, err := r.FormFile(conf.Server.Multipart.FormKey)
 	if err != nil {
 		log.Printf("Failed to limit the size of incoming request body, %v", err)
-		w.Write(result.Ko(err.Error()))
+		w.Write(result.EncodeErrMsg(err.Error()))
 		return
 	}
 
@@ -96,10 +98,10 @@ func (svc *S3Service) Upload(w http.ResponseWriter, r *http.Request) {
 	key, out, err := svc.put(&bucket, keygen.UUIDWithExt, file, header)
 	if err != nil {
 		log.Printf("Failed to upload file, %v", err)
-		w.Write(result.Ko(err.Error()))
+		w.Write(result.EncodeErrMsg(err.Error()))
 		return
 	}
-	w.Write(result.Ok(Media{
+	w.Write(codec.Encode(&result.Media{
 		ETag:      out.ETag,
 		VersionID: out.VersionId,
 		Bucket:    bucket,

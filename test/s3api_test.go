@@ -71,7 +71,7 @@ func TestUpload(t *testing.T) {
 		t.Fatal(err)
 	}
 	// do reqeust
-	req, err := http.NewRequest("POST", "http://localhost:8000/upload", body)
+	req, err := http.NewRequest("PUT", "http://localhost:8000/upload", body)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -86,27 +86,13 @@ func TestUpload(t *testing.T) {
 	}
 	// test response
 	defer resp.Body.Close()
-	respBody := &result.RespBody{}
-	if err := json.NewDecoder(resp.Body).Decode(respBody); err != nil {
+	media := &result.Media{}
+	if err := json.NewDecoder(resp.Body).Decode(media); err != nil {
 		t.Fatal(err)
 	}
-	if respBody.Code <= 0 {
-		t.Error(respBody)
-	}
-	data := respBody.Data
-	if data == nil {
-		t.Error(respBody)
-	}
-	media := data.(map[string]interface{})
 	t.Log(media)
-
-	eTag := media["eTag"].(string)
-	versionID := media["versionId"].(string)
-	bucket := media["bucket"].(string)
-	key := media["key"].(string)
-	p := media["path"].(string)
-	if len(eTag) == 0 || len(versionID) == 0 ||
-		len(bucket) == 0 || len(key) == 0 || len(p) == 0 {
+	if len(*media.ETag) == 0 || len(*media.VersionID) == 0 ||
+		len(media.Bucket) == 0 || len(media.Key) == 0 || len(media.Path) == 0 {
 		t.Error()
 	}
 }

@@ -29,7 +29,7 @@ API_TIMEOUT | false | 10000 | File upload timeout (Byte)
 Upload file
 
 ```http
-POST /upload HTTP/1.1
+PUT /upload HTTP/1.1
 Host: example.com
 User-Agent: example
 Accept: */*
@@ -47,18 +47,14 @@ Content-Disposition: form-data; name="file"; filename="/test/golang.png"
 ------WebKitFormBoundary7MA4YWxkTrZu0gW--
 ```
 
-Return result
+Expected result
 
 ```json
 {
-    "code": 1,
-    "message": "ok",
-    "data": {
-        "eTag": "\"6a2043fddc94020d0fd1c0c120ecb626\"",
-        "versionId": "MTg0NDUxNzk1MTU2NjQ5NDE1OTk",
-        "bucket": "test",
-        "key": "d2a04fffff874fa2863680214582c3d6.png",
-        "path": "test/d2a04fffff874fa2863680214582c3d6.png"
-    }
+    "eTag": "\"6a2043fddc94020d0fd1c0c120ecb626\"",
+    "versionId": "MTg0NDUxNzY4MzE2Nzc0MzkzODk",
+    "bucket": "test",
+    "key": "c3b75abc0e264fa089c181bf7ef57221.png",
+    "path": "test/c3b75abc0e264fa089c181bf7ef57221.png"
 }
 ```

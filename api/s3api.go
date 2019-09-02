@@ -77,6 +77,7 @@ func (svc *S3Service) Upload(w http.ResponseWriter, r *http.Request) {
 	conf := svc.Config.API
 	if err := r.ParseMultipartForm(conf.Server.Multipart.MaxRequestSize); err != nil {
 		log.Printf("Failed to parse multipart form, %v", err)
+		w.WriteHeader(http.StatusInternalServerError)
 		w.Write(result.EncodeErrMsg(err.Error()))
 		return
 	}
@@ -84,6 +85,7 @@ func (svc *S3Service) Upload(w http.ResponseWriter, r *http.Request) {
 	file, header, err := r.FormFile(conf.Server.Multipart.FormKey)
 	if err != nil {
 		log.Printf("Failed to limit the size of incoming request body, %v", err)
+		w.WriteHeader(http.StatusInternalServerError)
 		w.Write(result.EncodeErrMsg(err.Error()))
 		return
 	}
@@ -98,6 +100,7 @@ func (svc *S3Service) Upload(w http.ResponseWriter, r *http.Request) {
 	key, out, err := svc.put(&bucket, keygen.UUIDWithExt, file, header)
 	if err != nil {
 		log.Printf("Failed to upload file, %v", err)
+		w.WriteHeader(http.StatusInternalServerError)
 		w.Write(result.EncodeErrMsg(err.Error()))
 		return
 	}

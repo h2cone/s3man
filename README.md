@@ -1,10 +1,10 @@
 # s3man
 
-Provide file upload service
+Provide file upload service.
 
 ## Configuration
 
-Use environment variables
+Use environment variables:
 
 Name | Required | Default | Remark
 --- | --- | --- | ---
@@ -26,7 +26,7 @@ API_TIMEOUT | false | 10000 | File upload timeout (Byte)
 
 ## API
 
-Upload file
+Upload file:
 
 ```http
 PUT /upload HTTP/1.1
@@ -47,7 +47,7 @@ Content-Disposition: form-data; name="file"; filename="/test/golang.png"
 ------WebKitFormBoundary7MA4YWxkTrZu0gW--
 ```
 
-Expected result
+Expected result:
 
 ```json
 {
@@ -58,3 +58,11 @@ Expected result
     "path": "test/c3b75abc0e264fa089c181bf7ef57221.png"
 }
 ```
+
+You can also change the default configuration, see [config template](config.template.json), and start the program as a specified configuration file:
+
+```shell
+./s3man -c config.template.json
+```
+
+The default value of `-c` is [config.default.json](config.default.json).
